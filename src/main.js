@@ -18,12 +18,13 @@ module.exports = class JSONDatabase {
         }
 
         this._store = Object.assign(database, this._store);
-        console.log(this._store)
 
         await fs.writeFileSync(this.path, JSON.stringify(this._store))
     }
 
     async get(key) {
+        this.sync();
+
         if (!!this._store[key] === false) {
             return 'Item Empty'
         } else {
@@ -34,10 +35,12 @@ module.exports = class JSONDatabase {
     async set(key, value) {
         this._store[key] = value;
 
-        if (this._store[item] === value) {
-            return `Success set ${item}'s data to ${value}`;
+        this.sync();
+
+        if (this._store[key] === value) {
+            return `Success set ${key}'s data to ${value}`;
         } else {
-            return `Error! ${item} was not successfully set to ${value}`;
+            return `Error! ${key} was not successfully set to ${value}`;
         }
     }
 }
