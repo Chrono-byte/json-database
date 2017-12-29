@@ -10,25 +10,26 @@ module.exports = class JSONDatabase {
         let database = await fs.readFileSync(this.path, 'utf8');
 
         if (!database) {
-            await fs.writeFileSync(this.path, JSON.stringify({}));
+            await fs.writeFileSync(this.path, await this.serialize({}));
             database = {};
         } else {
-
-            database = JSON.parse(database);
+            database = await this.deserialize(database);
         }
 
         this._store = Object.assign(database, this._store);
 
-        await fs.writeFileSync(this.path, JSON.stringify(this._store))
+        await fs.writeFileSync(this.path, await this.serialize(this._store))
+
+        return true;
     }
 
     async get(key) {
         this.sync();
 
         if (!!this._store[key] === false) {
-            return 'Item Empty'
+            return undefined;
         } else {
-            return this._store[key]
+            return this._store[key];
         }
     }
 
@@ -37,10 +38,18 @@ module.exports = class JSONDatabase {
 
         this.sync();
 
-        if (this._store[key] === value) {
-            return `Success set ${key}'s data to ${value}`;
-        } else {
-            return `Error! ${key} was not successfully set to ${value}`;
+        if (this._store[key] !== value) {
+            throw `Error! ${key} was not successfully set to ${value}`;
         }
+
+        return value;
+    }
+
+    async serialize(data) {
+        return JSON.stringify(data);
+    }
+
+    async deserialize(data) {
+        return JSON.parse(data);
     }
 }
