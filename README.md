@@ -1,2 +1,2 @@
-# json-database
-A memey database out of JSON
+# json-db
+A database made out of JSON
